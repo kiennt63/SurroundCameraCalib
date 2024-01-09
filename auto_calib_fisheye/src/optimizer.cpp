@@ -448,32 +448,40 @@ void Optimizer::initializePose()
     if (data_index == "imgs1" || data_index == "imgs2")
     {
         // clang-format off
-	auto r_mat = getMatrix(0.00348309, 0.0371387, 2.36463);
-	T_LG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), -781.234/1000,
-		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1436.17/1000 ,
-		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), 66.6156/1000 ,
+	auto r_mat = getMatrix(-0.0104808, 0.00237923, 2.34865);
+	T_LG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), -637.532/1000,
+		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1537.86/1000 ,
+		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), 8.68383/1000 ,
 		0, 0, 0, 1;
 
         T_LG = T_LG * rot90;
 
-	r_mat = getMatrix(1.63932, -1.89911, -0.0459019);
-	T_FG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), -29.6463/1000,
-		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1070.4/1000  ,
-		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), -1909.5/1000 ,
+	r_mat = getMatrix(-1.52864, -1.11977, 3.12202);
+	T_FG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), -56.7372/1000,
+		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1663.85/1000  ,
+		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), -1775.91/1000 ,
 		0, 0, 0, 1;
         T_FG = T_FG * rot90;
 
-	r_mat = getMatrix(-1.54026, 2.19065, 0.0314631);
-	T_BG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), 15.4238/1000 ,
-		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1670.21/1000 ,
-		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), -1244.62/1000,
+	r_mat = getMatrix(-1.5594, 2.34525, 0.00766365);
+	T_BG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), -16.2881/1000 ,
+		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 2129.66/1000 ,
+		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), -1207.29/1000,
 		0, 0, 0, 1;
         T_BG = T_BG * rot90;
 
-	r_mat = getMatrix(3.138, -0.0157633, -2.33495);
-	T_RG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), 739.047/1000,
-		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1411.51/1000,
-		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), 11.8222/1000,
+// rvecs:
+// 3.10497
+// -0.00607916
+// -2.34438
+// tvecs:
+// 671.487
+// 1491.78
+// 2.55011
+	r_mat = getMatrix(3.10497, -0.00607916, -2.34438);
+	T_RG << r_mat(0, 0), r_mat(0, 1), r_mat(0, 2), 671.487/1000,
+		r_mat(1, 0), r_mat(1, 1), r_mat(1, 2), 1491.78/1000,
+		r_mat(2, 0), r_mat(2, 1), r_mat(2, 2), 2.55011/1000,
 		0, 0, 0, 1;
         T_RG = T_RG * rot90;
 
@@ -707,10 +715,10 @@ void Optimizer::initializetailsize()
 
     if (data_index == "imgs1" || data_index == "imgs2")
     {
-        sizef = 380;
-        sizel = 550;
-        sizeb = 380;
-        sizer = 550;
+        sizef = 340;
+        sizel = 400;
+        sizeb = 340;
+        sizer = 400;
     }
 
     if (data_index == "imgs6")

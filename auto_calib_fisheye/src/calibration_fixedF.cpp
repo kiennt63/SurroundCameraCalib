@@ -352,11 +352,11 @@ int main(){
     imgs6 are the surround images captured by a car in the calibration room(fisheye,Fov=195).
     */
     prefix="../imgs1";
-    suffix=".png";
-    Mat imgl=cv::imread(prefix+"/cam0"+suffix);
-    Mat imgf=cv::imread(prefix+"/cam1"+suffix);
-    Mat imgb=cv::imread(prefix+"/cam2"+suffix);
-    Mat imgr=cv::imread(prefix+"/cam3"+suffix);
+    suffix=".jpeg";
+    Mat imgl=cv::imread(prefix+"/image2_1704793892114"+suffix);
+    Mat imgf=cv::imread(prefix+"/image1_1704793892114"+suffix);
+    Mat imgb=cv::imread(prefix+"/image0_1704793892114"+suffix);
+    Mat imgr=cv::imread(prefix+"/image3_1704793892114"+suffix);
 
     //bev rows、cols
     int bev_rows=1000,bev_cols=1000;//recommendation : pinhole---1500,fisheye---1000
