@@ -9,6 +9,7 @@
 #define SVM_AUTORC_UTILS_H
 
 #include <Eigen/Dense>
+#include <random>
 #include "defines.h"
 #include "optimizer.h"
 #include "transform_util.h"
@@ -31,60 +32,47 @@ inline std::pair<double, double> calculateError(const Eigen::Matrix4d& ext1,
     return std::make_pair(translationError, rotationError);
 }
 
-inline void addDisturbance(CamID fixed, Eigen::Matrix4d& T_FG, Eigen::Matrix4d& T_LG,
-                           Eigen::Matrix4d& T_BG, Eigen::Matrix4d& T_RG)
+inline void genDisturbance(Eigen::Matrix<float, 4, 6>& disturbances)
 {
-    if (fixed == CamID::B)
+    std::uniform_real_distribution<float> t_dist(0.001, 0.01);
+    std::uniform_real_distribution<float> r_dist(1.0, 4.0);
+    std::uniform_real_distribution<float> sign_dist(0.0f, 1.0f);
+    std::random_device gen;
+    for (size_t camid = 0; camid < CamID::NUM_CAM; camid++)
     {
-        Eigen::Matrix4d front_disturbance;
-        Eigen::Matrix3d front_disturbance_rot_mat;
-        Vec3f front_disturbance_rot_euler;  // R(euler)
-        Mat_<double> front_disturbance_t = (Mat_<double>(3, 1) << 0.007, 0.008, -0.0093);
-        front_disturbance_rot_euler << 0.89, 2.69, 1.05;
-        front_disturbance_rot_mat =
-            TransformUtil::eulerAnglesToRotationMatrix(front_disturbance_rot_euler);
-        front_disturbance = TransformUtil::R_T2RT(
-            TransformUtil::eigen2mat(front_disturbance_rot_mat), front_disturbance_t);
-        T_FG *= front_disturbance;
+        disturbances(camid, 0) = t_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
+        disturbances(camid, 1) = t_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
+        disturbances(camid, 2) = t_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
+        disturbances(camid, 3) = r_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
+        disturbances(camid, 4) = r_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
+        disturbances(camid, 5) = r_dist(gen) * (int(sign_dist(gen) > 0.5) * 2 - 1);
     }
+}
 
-    Eigen::Matrix4d left_disturbance;
-    Eigen::Matrix3d left_disturbance_rot_mat;
-    Vec3f left_disturbance_rot_euler;  // R(euler)
-    // Mat_<double> left_disturbance_t=(Mat_<double>(3, 1)<<0,0,0);
-    Mat_<double> left_disturbance_t = (Mat_<double>(3, 1) << 0.0095, 0.0025, -0.0086);
-    left_disturbance_rot_euler << 1.95, -1.25, 1.86;
-    left_disturbance_rot_mat =
-        TransformUtil::eulerAnglesToRotationMatrix(left_disturbance_rot_euler);
-    left_disturbance = TransformUtil::R_T2RT(TransformUtil::eigen2mat(left_disturbance_rot_mat),
-                                             left_disturbance_t);
-    T_LG *= left_disturbance;
-
-    Eigen::Matrix4d right_disturbance;
-    Eigen::Matrix3d right_disturbance_rot_mat;
-    Vec3f right_disturbance_rot_euler;
-    // Mat_<double> right_disturbance_t=(Mat_<double>(3, 1)<<0,0,0);
-    Mat_<double> right_disturbance_t = (Mat_<double>(3, 1) << 0.0065, -0.0075, 0.0095);
-    right_disturbance_rot_euler << 1.95, 0.95, -1.8;
-    right_disturbance_rot_mat =
-        TransformUtil::eulerAnglesToRotationMatrix(right_disturbance_rot_euler);
-    right_disturbance = TransformUtil::R_T2RT(TransformUtil::eigen2mat(right_disturbance_rot_mat),
-                                              right_disturbance_t);
-    T_RG *= right_disturbance;
-
-    if (fixed == CamID::F)
+inline void addDisturbance(CamID fixed, std::array<Eigen::Matrix4d, 4>& initExt,
+                           const Eigen::Matrix<float, 4, 6>& disturbances)
+{
+    for (size_t camid = 0; camid < CamID::NUM_CAM; camid++)
     {
-        Eigen::Matrix4d behind_disturbance;
-        Eigen::Matrix3d behind_disturbance_rot_mat;
-        Vec3f behind_disturbance_rot_euler;
-        // Mat_<double> behind_disturbance_t=(Mat_<double>(3, 1)<<0,0,0);
-        Mat_<double> behind_disturbance_t = (Mat_<double>(3, 1) << -0.002, -0.0076, 0.0096);
-        behind_disturbance_rot_euler << -1.75, 1.95, -1.8;
-        behind_disturbance_rot_mat =
-            TransformUtil::eulerAnglesToRotationMatrix(behind_disturbance_rot_euler);
-        behind_disturbance = TransformUtil::R_T2RT(
-            TransformUtil::eigen2mat(behind_disturbance_rot_mat), behind_disturbance_t);
-        T_BG *= behind_disturbance;
+        if ((camid == CamID::B && fixed == CamID::B) || (camid == CamID::F && fixed == CamID::F))
+        {
+            continue;
+        }
+        if (camid == 1) continue;
+
+        LOG_INFO("adding disturbance for cam: {}", camid);
+        Eigen::Matrix4d disturbance;
+        Eigen::Matrix3d disturbance_rot_mat;
+        Vec3f disturbance_rot_euler;  // R(euler)
+
+        Mat_<double> disturbance_t = (Mat_<double>(3, 1) << disturbances(camid, 0),
+                                      disturbances(camid, 1), disturbances(camid, 2));
+        disturbance_rot_euler << disturbances(camid, 3), disturbances(camid, 4),
+            disturbances(camid, 5);
+        disturbance_rot_mat = TransformUtil::eulerAnglesToRotationMatrix(disturbance_rot_euler);
+        disturbance =
+            TransformUtil::R_T2RT(TransformUtil::eigen2mat(disturbance_rot_mat), disturbance_t);
+        initExt[camid] *= disturbance;
     }
 }
 

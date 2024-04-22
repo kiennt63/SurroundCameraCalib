@@ -501,8 +501,6 @@ int main(int argc, char** argv)
     cv::Mat imgTop;
     topviewGenerator->createTopViewImage(imgl, imgf, imgb, imgr, imgTop);
 
-    cv::imwrite(output + "/topview_before.png", imgTop);
-
     // bev images before optimization
     Mat GF = opt.project_on_ground(imgf, opt.initExt[CamID::F], opt.intrinsics[CamID::F],
                                    opt.distortion_params[CamID::F], opt.KG, opt.brows, opt.bcols,
@@ -721,7 +719,15 @@ int main(int argc, char** argv)
         return 1;  // Exit with an error code
     }
 
-    outputFile << "CamID - Translation error - Rotation error" << std::endl;
+    outputFile << "DISTURBANCES: CamID x Disturbance" << std::endl;
+    std::cout << opt.disturbances << "\n";
+    for (size_t camid = 0; camid < CamID::NUM_CAM; camid++)
+    {
+        outputFile << opt.disturbances(camid, 0) << " " << opt.disturbances(camid, 1) << " "
+                   << opt.disturbances(camid, 2) << " " << opt.disturbances(camid, 3) << " "
+                   << opt.disturbances(camid, 4) << " " << opt.disturbances(camid, 5) << std::endl;
+    }
+    outputFile << "ERROR: CamID - Translation error - Rotation error" << std::endl;
 
     std::array<std::pair<double, double>, 4> errors;
     errors[CamID::F] = util::calculateError(opt.initExt[CamID::F], opt.gtExt[CamID::F]);
@@ -780,10 +786,16 @@ int main(int argc, char** argv)
     }
 
     topviewGenerator->init(uvLists);
-    topviewGenerator->createTopViewImage(imgl, imgf, imgb, imgr, imgTop);
+    cv::Mat imgTopAfter;
+    topviewGenerator->createTopViewImage(imgl, imgf, imgb, imgr, imgTopAfter);
+    cv::Mat compareMat;
+    cv::hconcat(imgTop, imgTopAfter, compareMat);
 
     LOG_INFO("Writing image");
-    cv::imwrite(output + "/topview_after.png", imgTop);
+    cv::putText(compareMat, "before", cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 1,
+                cv::Scalar(255, 0, 0, 255), 2);
+    cv::putText(compareMat, "after", cv::Point(20 + 800, 40), 0, 1, cv::Scalar(255, 0, 0, 255), 2);
+    cv::imwrite(output + "/compare.png", compareMat);
 
     return 0;
 }

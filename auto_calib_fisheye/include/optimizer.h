@@ -68,6 +68,8 @@ public:
     std::array<Eigen::Matrix4d, 4> initExt;
     std::array<Eigen::Matrix4d, 4> optExt;
 
+    Eigen::Matrix<float, 4, 6> disturbances;
+
     // distortion papameters
     std::array<vector<double>, 4> distortion_params;
     // vector<double> distortion_params_front;
@@ -174,15 +176,15 @@ public:
     void world2cam(double point2D[2], double point3D[3], Eigen::Matrix3d K, vector<double> D);
     void distortPoints(Mat &P_GC1, Mat &p_GC, Eigen::Matrix3d &K_C);
     void distortPointsOcam(Mat &P_GC1, Mat &p_GC, Eigen::Matrix3d &K_C, vector<double> &D_C);
-    void random_search_params(int search_count, double roll_ep0, double roll_ep1, double pitch_ep0,
-                              double pitch_ep1, double yaw_ep0, double yaw_ep1, double t0_ep0,
-                              double t0_ep1, double t1_ep0, double t1_ep1, double t2_ep0,
-                              double t2_ep1, CamID camId);
-    void fine_random_search_params(int search_count, double roll_ep0, double roll_ep1,
+    void random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
+                              double pitch_ep0, double pitch_ep1, double yaw_ep0, double yaw_ep1,
+                              double t0_ep0, double t0_ep1, double t1_ep0, double t1_ep1,
+                              double t2_ep0, double t2_ep1, CamID camId);
+    void fine_random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
                                    double pitch_ep0, double pitch_ep1, double yaw_ep0,
                                    double yaw_ep1, double t0_ep0, double t0_ep1, double t1_ep0,
                                    double t1_ep1, double t2_ep0, double t2_ep1, CamID camId);
-    void best_random_search_params(int search_count, double roll_ep0, double roll_ep1,
+    void best_random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
                                    double pitch_ep0, double pitch_ep1, double yaw_ep0,
                                    double yaw_ep1, double t0_ep0, double t0_ep1, double t1_ep0,
                                    double t1_ep1, double t2_ep0, double t2_ep1, CamID camId);

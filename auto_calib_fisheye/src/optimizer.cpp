@@ -420,40 +420,41 @@ inline Eigen::MatrixXd getMatrix(double yaw, double pitch, double roll)
 
 void Optimizer::initializePose()
 {
-    Eigen::Matrix4d T_FG;
-    Eigen::Matrix4d T_LG;
-    Eigen::Matrix4d T_BG;
-    Eigen::Matrix4d T_RG;
+    // Eigen::Matrix4d initExt[CamID::F];
+    // Eigen::Matrix4d initExt[CamID::L];
+    // Eigen::Matrix4d initExt[CamID::B];
+    // Eigen::Matrix4d initExt[CamID::R];
 
     if (data_index == "imgs3" || data_index == "imgs4" || data_index == "imgs5")
     {
-        T_FG << 1, 0, 0, 0, 0, 0, 1, -4.1, 0, -1, 0, -2.5, 0, 0, 0, 1;
-        T_LG << 0, -1, 0, 0, 0, 0, 1, -4.1, -1, 0, 0, -1, 0, 0, 0, 1;
-        T_BG << -1, 0, 0, 0, 0, 0, 1, -4.1, 0, 1, 0, -2, 0, 0, 0, 1;
-        T_RG << 0, 1, 0, 0, 0, 0, 1, -4.1, 1, 0, 0, -1, 0, 0, 0, 1;
+        initExt[CamID::F] << 1, 0, 0, 0, 0, 0, 1, -4.1, 0, -1, 0, -2.5, 0, 0, 0, 1;
+        initExt[CamID::L] << 0, -1, 0, 0, 0, 0, 1, -4.1, -1, 0, 0, -1, 0, 0, 0, 1;
+        initExt[CamID::B] << -1, 0, 0, 0, 0, 0, 1, -4.1, 0, 1, 0, -2, 0, 0, 0, 1;
+        initExt[CamID::R] << 0, 1, 0, 0, 0, 0, 1, -4.1, 1, 0, 0, -1, 0, 0, 0, 1;
     }
 
     if (data_index == "custom")
     {
-        load_extrinsics(calibPath_, T_LG, T_FG, T_BG, T_RG);
+        load_extrinsics(calibPath_, initExt[CamID::L], initExt[CamID::F], initExt[CamID::B],
+                        initExt[CamID::R]);
         printf("Set custom Extrinsics\n");
     }
 
     if (data_index == "imgs1" || data_index == "imgs2")
     {
-        T_FG << 9.99277118e-01, 3.82390286e-04, -3.80143958e-02, 6.75437418e-01 / 10,
+        initExt[CamID::F] << 9.99277118e-01, 3.82390286e-04, -3.80143958e-02, 6.75437418e-01 / 10,
             -2.30748265e-02, -7.88582447e-01, -6.14495953e-01, 2.50896883e+01 / 10, -3.02124625e-02,
             6.14928921e-01, -7.88003572e-01, 3.17779305e+00 / 10, 0, 0, 0, 1;
 
-        T_LG << -1.21898860e-02, 9.99924056e-01, -1.81349393e-03, 1.36392943e+00 / 10,
+        initExt[CamID::L] << -1.21898860e-02, 9.99924056e-01, -1.81349393e-03, 1.36392943e+00 / 10,
             8.02363600e-01, 8.69913885e-03, -5.96772133e-01, 1.60942881e+01 / 10, -5.96711036e-01,
             -8.72966581e-03, -8.02408707e-01, 1.04105913e+01 / 10, 0, 0, 0, 1;
 
-        T_BG << -9.99615699e-01, 1.56439861e-02, -2.28849354e-02, 1.09266953e+00 / 10,
+        initExt[CamID::B] << -9.99615699e-01, 1.56439861e-02, -2.28849354e-02, 1.09266953e+00 / 10,
             2.59906371e-02, 8.16008735e-01, -5.77454960e-01, 2.46308124e+01 / 10, 9.64060983e-03,
             -5.77827838e-01, -8.16101739e-01, 6.60957845e+00 / 10, 0, 0, 0, 1;
 
-        T_RG << 4.57647596e-03, -9.99989102e-01, 9.22798184e-04, -1.66115120e-01 / 10,
+        initExt[CamID::R] << 4.57647596e-03, -9.99989102e-01, 9.22798184e-04, -1.66115120e-01 / 10,
             -6.26343448e-01, -3.58584197e-03, -7.79538984e-01, 1.76226207e+01 / 10, 7.79533797e-01,
             2.98955282e-03, -6.26353033e-01, 6.08338205e+00 / 10, 0, 0, 0, 1;
     }
@@ -470,7 +471,7 @@ void Optimizer::initializePose()
             -8.085761510301381e-05, -0.009539025835692883, -0.38940492272377014, 0.9210171699523926,
             3.7151906490325928 - 1.8, -0.021024547517299652, -0.9207773804664612,
             -0.3895213007926941, 0.6170634031295776, 0, 0, 0, 1;
-        T_FG = (T_GC * T_CF).inverse();
+        initExt[CamID::F] = (T_GC * T_CF).inverse();
 
         // Car_Center<--Left
         Eigen::Matrix4d T_CL;
@@ -478,7 +479,7 @@ void Optimizer::initializePose()
             0.9997195601463318, -0.021872058510780334, -0.009070112369954586,
             2.1220741271972656 - 1.8, -0.023017220199108124, -0.8078124523162842,
             -0.5889899134635925, 1.0284450054168701, 0, 0, 0, 1;
-        T_LG = (T_GC * T_CL).inverse();
+        initExt[CamID::L] = (T_GC * T_CL).inverse();
 
         // Car_Center<--Back
         Eigen::Matrix4d T_CB;
@@ -486,7 +487,7 @@ void Optimizer::initializePose()
             -0.003093475243076682, 0.005489660892635584, 0.47006523609161377, -0.8826141953468323,
             -1.0302399396896362 - 1.8, 0.028045203536748886, -0.882352888584137,
             -0.46975162625312805, 0.70152747631073, 0, 0, 0, 1;
-        T_BG = (T_GC * T_CB).inverse();
+        initExt[CamID::B] = (T_GC * T_CB).inverse();
 
         // Car_Center<--Right
         Eigen::Matrix4d T_CR;
@@ -494,22 +495,23 @@ void Optimizer::initializePose()
             -0.9998561143875122, -0.0013508035335689783, -0.01689748652279377,
             2.1217870712280273 - 1.8, 0.010977385565638542, -0.8111737966537476,
             -0.5847020149230957, 1.030495285987854, 0, 0, 0, 1;
-        T_RG = (T_GC * T_CR).inverse();
+        initExt[CamID::R] = (T_GC * T_CR).inverse();
     }
-    gtExt[CamID::F] = T_FG;
-    gtExt[CamID::L] = T_LG;
-    gtExt[CamID::B] = T_BG;
-    gtExt[CamID::R] = T_RG;
+    gtExt[CamID::F] = initExt[CamID::F];
+    gtExt[CamID::L] = initExt[CamID::L];
+    gtExt[CamID::B] = initExt[CamID::B];
+    gtExt[CamID::R] = initExt[CamID::R];
 
     if (flag_add_disturbance)
     {
-        util::addDisturbance(fixed, T_FG, T_LG, T_BG, T_RG);
+        util::genDisturbance(disturbances);
+        util::addDisturbance(fixed, initExt, disturbances);
     }
 
-    initExt[CamID::F] = T_FG;
-    initExt[CamID::L] = T_LG;
-    initExt[CamID::B] = T_BG;
-    initExt[CamID::R] = T_RG;
+    initExt[CamID::F] = initExt[CamID::F];
+    initExt[CamID::L] = initExt[CamID::L];
+    initExt[CamID::B] = initExt[CamID::B];
+    initExt[CamID::R] = initExt[CamID::R];
 
     optExt[CamID::F] = initExt[CamID::F];
     optExt[CamID::L] = initExt[CamID::L];
@@ -695,9 +697,9 @@ Optimizer::Optimizer(const std::string &calibPath, const Mat *imgf, const Mat *i
         imgf_bev_gray = project_on_ground(imgf_gray, initExt[CamID::F], intrinsics[CamID::F],
                                           distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_atb  = project_on_ground(imgf_gray, initExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hf);
+                                          distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_rgb  = project_on_ground(imgf_rgb, initExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hf);
+                                          distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_gray = tail(imgf_bev_gray, CamID::F);
         imgf_bev_atb  = tail(imgf_bev_atb, CamID::F);
         imgf_bev_rgb  = tail(imgf_bev_rgb, CamID::F);
@@ -707,9 +709,9 @@ Optimizer::Optimizer(const std::string &calibPath, const Mat *imgf, const Mat *i
         imgb_bev_gray = project_on_ground(imgb_gray, initExt[CamID::B], intrinsics[CamID::B],
                                           distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_atb  = project_on_ground(imgb_rgb, initExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_rgb  = project_on_ground(imgb_rgb, initExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_gray = tail(imgb_bev_gray, CamID::B);
         imgb_bev_atb  = tail(imgb_bev_atb, CamID::B);
         imgb_bev_rgb  = tail(imgb_bev_rgb, CamID::B);
@@ -1052,7 +1054,7 @@ double Optimizer::back_camera_and_compute_loss(Mat img1_bev_gray, Mat img1_bev_a
     return loss;
 }
 
-void Optimizer::random_search_params(int search_count, double roll_ep0, double roll_ep1,
+void Optimizer::random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
                                      double pitch_ep0, double pitch_ep1, double yaw_ep0,
                                      double yaw_ep1, double t0_ep0, double t0_ep1, double t1_ep0,
                                      double t1_ep1, double t2_ep0, double t2_ep1, CamID camId)
@@ -1137,9 +1139,9 @@ void Optimizer::random_search_params(int search_count, double roll_ep0, double r
         imgl_bev_gray = project_on_ground(imgl_gray, optExt[CamID::L], intrinsics[CamID::L],
                                           distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_rgb  = project_on_ground(imgl_rgb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_atb  = project_on_ground(imgl_atb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
 
         imgl_bev_gray = tail(imgl_bev_gray, CamID::L);
         imgl_bev_rgb  = tail(imgl_bev_rgb, CamID::L);
@@ -1180,9 +1182,9 @@ void Optimizer::random_search_params(int search_count, double roll_ep0, double r
         imgr_bev_gray = project_on_ground(imgr_gray, optExt[CamID::R], intrinsics[CamID::R],
                                           distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_rgb  = project_on_ground(imgr_rgb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_atb  = project_on_ground(imgr_atb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
 
         imgr_bev_gray = tail(imgr_bev_gray, CamID::R);
         imgr_bev_rgb  = tail(imgr_bev_rgb, CamID::R);
@@ -1223,9 +1225,9 @@ void Optimizer::random_search_params(int search_count, double roll_ep0, double r
         imgb_bev_gray = project_on_ground(imgb_gray, optExt[CamID::B], intrinsics[CamID::B],
                                           distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_rgb  = project_on_ground(imgb_rgb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_atb  = project_on_ground(imgb_atb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
 
         imgb_bev_gray = tail(imgb_bev_gray, CamID::B);
         imgb_bev_rgb  = tail(imgb_bev_rgb, CamID::B);
@@ -1261,9 +1263,9 @@ void Optimizer::random_search_params(int search_count, double roll_ep0, double r
         imgf_bev_gray = project_on_ground(imgf_gray, optExt[CamID::F], intrinsics[CamID::F],
                                           distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_rgb  = project_on_ground(imgf_rgb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
         imgf_bev_atb  = project_on_ground(imgf_atb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
 
         imgf_bev_gray = tail(imgf_bev_gray, CamID::F);
         imgf_bev_rgb  = tail(imgf_bev_rgb, CamID::F);
@@ -1295,7 +1297,7 @@ void Optimizer::random_search_params(int search_count, double roll_ep0, double r
     }
 }
 
-void Optimizer::fine_random_search_params(int search_count, double roll_ep0, double roll_ep1,
+void Optimizer::fine_random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
                                           double pitch_ep0, double pitch_ep1, double yaw_ep0,
                                           double yaw_ep1, double t0_ep0, double t0_ep1,
                                           double t1_ep0, double t1_ep1, double t2_ep0,
@@ -1411,9 +1413,9 @@ void Optimizer::fine_random_search_params(int search_count, double roll_ep0, dou
         imgl_bev_gray = project_on_ground(imgl_gray, optExt[CamID::L], intrinsics[CamID::L],
                                           distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_rgb  = project_on_ground(imgl_rgb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_atb  = project_on_ground(imgl_atb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
 
         imgl_bev_gray = tail(imgl_bev_gray, CamID::L);
         imgl_bev_rgb  = tail(imgl_bev_rgb, CamID::L);
@@ -1454,9 +1456,9 @@ void Optimizer::fine_random_search_params(int search_count, double roll_ep0, dou
         imgr_bev_gray = project_on_ground(imgr_gray, optExt[CamID::R], intrinsics[CamID::R],
                                           distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_rgb  = project_on_ground(imgr_rgb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_atb  = project_on_ground(imgr_atb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
 
         imgr_bev_gray = tail(imgr_bev_gray, CamID::R);
         imgr_bev_rgb  = tail(imgr_bev_rgb, CamID::R);
@@ -1497,9 +1499,9 @@ void Optimizer::fine_random_search_params(int search_count, double roll_ep0, dou
         imgb_bev_gray = project_on_ground(imgb_gray, optExt[CamID::B], intrinsics[CamID::B],
                                           distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_rgb  = project_on_ground(imgb_rgb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_atb  = project_on_ground(imgb_atb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
 
         imgb_bev_gray = tail(imgb_bev_gray, CamID::B);
         imgb_bev_rgb  = tail(imgb_bev_rgb, CamID::B);
@@ -1535,9 +1537,9 @@ void Optimizer::fine_random_search_params(int search_count, double roll_ep0, dou
         imgf_bev_gray = project_on_ground(imgf_gray, optExt[CamID::F], intrinsics[CamID::F],
                                           distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_rgb  = project_on_ground(imgf_rgb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
         imgf_bev_atb  = project_on_ground(imgf_atb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
 
         imgf_bev_gray = tail(imgf_bev_gray, CamID::F);
         imgf_bev_rgb  = tail(imgf_bev_rgb, CamID::F);
@@ -1569,7 +1571,7 @@ void Optimizer::fine_random_search_params(int search_count, double roll_ep0, dou
     }
 }
 
-void Optimizer::best_random_search_params(int search_count, double roll_ep0, double roll_ep1,
+void Optimizer::best_random_search_params(size_t search_count, double roll_ep0, double roll_ep1,
                                           double pitch_ep0, double pitch_ep1, double yaw_ep0,
                                           double yaw_ep1, double t0_ep0, double t0_ep1,
                                           double t1_ep0, double t1_ep1, double t2_ep0,
@@ -1663,9 +1665,9 @@ void Optimizer::best_random_search_params(int search_count, double roll_ep0, dou
         imgl_bev_gray = project_on_ground(imgl_gray, optExt[CamID::L], intrinsics[CamID::L],
                                           distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_rgb  = project_on_ground(imgl_rgb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
         imgl_bev_atb  = project_on_ground(imgl_atb, optExt[CamID::L], intrinsics[CamID::L],
-                                         distortion_params[CamID::L], KG, brows, bcols, hl);
+                                          distortion_params[CamID::L], KG, brows, bcols, hl);
 
         imgl_bev_gray = tail(imgl_bev_gray, CamID::L);
         imgl_bev_rgb  = tail(imgl_bev_rgb, CamID::L);
@@ -1677,9 +1679,9 @@ void Optimizer::best_random_search_params(int search_count, double roll_ep0, dou
         imgr_bev_gray = project_on_ground(imgr_gray, optExt[CamID::R], intrinsics[CamID::R],
                                           distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_rgb  = project_on_ground(imgr_rgb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
         imgr_bev_atb  = project_on_ground(imgr_atb, optExt[CamID::R], intrinsics[CamID::R],
-                                         distortion_params[CamID::R], KG, brows, bcols, hr);
+                                          distortion_params[CamID::R], KG, brows, bcols, hr);
 
         imgr_bev_gray = tail(imgr_bev_gray, CamID::R);
         imgr_bev_rgb  = tail(imgr_bev_rgb, CamID::R);
@@ -1691,9 +1693,9 @@ void Optimizer::best_random_search_params(int search_count, double roll_ep0, dou
         imgb_bev_gray = project_on_ground(imgb_gray, optExt[CamID::B], intrinsics[CamID::B],
                                           distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_rgb  = project_on_ground(imgb_rgb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
         imgb_bev_atb  = project_on_ground(imgb_atb, optExt[CamID::B], intrinsics[CamID::B],
-                                         distortion_params[CamID::B], KG, brows, bcols, hb);
+                                          distortion_params[CamID::B], KG, brows, bcols, hb);
 
         imgb_bev_gray = tail(imgb_bev_gray, CamID::B);
         imgb_bev_rgb  = tail(imgb_bev_rgb, CamID::B);
@@ -1705,9 +1707,9 @@ void Optimizer::best_random_search_params(int search_count, double roll_ep0, dou
         imgf_bev_gray = project_on_ground(imgf_gray, optExt[CamID::F], intrinsics[CamID::F],
                                           distortion_params[CamID::F], KG, brows, bcols, hf);
         imgf_bev_rgb  = project_on_ground(imgf_rgb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
         imgf_bev_atb  = project_on_ground(imgf_atb, optExt[CamID::F], intrinsics[CamID::F],
-                                         distortion_params[CamID::F], KG, brows, bcols, hb);
+                                          distortion_params[CamID::F], KG, brows, bcols, hb);
 
         imgf_bev_gray = tail(imgf_bev_gray, CamID::F);
         imgf_bev_rgb  = tail(imgf_bev_rgb, CamID::F);
