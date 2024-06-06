@@ -164,8 +164,8 @@ void Optimizer::SaveOptResult(const string filename)
     Mat opt_after = generate_surround_view(imgf_bev_rgb, imgl_bev_rgb, imgb_bev_rgb, imgr_bev_rgb);
     Mat opt_after1 =
         generate_surround_viewX(imgf_bev_rgb, imgl_bev_rgb, imgb_bev_rgb, imgr_bev_rgb);
-    imwrite(filename + ".png", opt_after);
-    imwrite(filename + "X.png", opt_after1);
+    imwrite(filename + ".jpeg", opt_after);
+    imwrite(filename + "X.jpeg", opt_after1);
     // imshow("after_all_cameras_calib",opt_after);
     // waitKey(0);
 }
@@ -1713,7 +1713,7 @@ void Optimizer::best_random_search_params(size_t search_count, double roll_ep0, 
 
         imgf_bev_gray = tail(imgf_bev_gray, CamID::F);
         imgf_bev_rgb  = tail(imgf_bev_rgb, CamID::F);
-        cv::imwrite(prefix + "/home/kiennt63/test.png", imgf_bev_rgb);
+        cv::imwrite(prefix + "/home/kiennt63/test.jpeg", imgf_bev_rgb);
         imgf_bev_atb = tail(imgf_bev_atb, CamID::F);
     }
 }

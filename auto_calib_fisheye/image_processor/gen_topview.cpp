@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 
     cv::Mat imgTop;
     imgprocContext->createTopViewImage(imgl, imgf, imgb, imgr, imgTop);
-    cv::imwrite(output + "/topview_after.png", imgTop);
+    cv::imwrite(output + "/topview_after.jpeg", imgTop);
 
     return 0;
 }

@@ -535,7 +535,7 @@ int main(int argc, char** argv)
     // waitKey(0);
 
     Mat bev_before = opt.generate_surround_view(GF, GL, GB, GR);
-    imwrite(output + "/before_all_calib.png", bev_before);
+    imwrite(output + "/before_all_calib.jpeg", bev_before);
     // imshow("opt_before", bev_before);
     // waitKey(0);
 
@@ -552,7 +552,7 @@ int main(int argc, char** argv)
     ext1.Binarization();
     ext1.findcontours();
     opt.fl_pixels_texture =
-        ext1.extrac_textures_and_save(output + "/texture_fl.png", output + "/fl.csv");
+        ext1.extrac_textures_and_save(output + "/texture_fl.jpeg", output + "/fl.csv");
     if (ext1.exposure_flag && ext1.ncoef > 0.5)
     {
         opt.ncoef_fl = ext1.ncoef;
@@ -586,7 +586,7 @@ int main(int argc, char** argv)
     ext2.Binarization();
     ext2.findcontours();
     opt.fr_pixels_texture =
-        ext2.extrac_textures_and_save(output + "/texture_fr.png", output + "/fr.csv");
+        ext2.extrac_textures_and_save(output + "/texture_fr.jpeg", output + "/fr.csv");
     if (ext2.exposure_flag && ext2.ncoef > 0.5)
     {
         opt.ncoef_fr = ext2.ncoef;
@@ -620,8 +620,8 @@ int main(int argc, char** argv)
 
     // back left field texture extraction
     int exposure_flag_bl = 1;  // if add exposure solution
-    cv::imwrite(output + "/GB.png", GB);
-    cv::imwrite(output + "/imgl_bev_rgb.png", opt.imgl_bev_rgb);
+    cv::imwrite(output + "/GB.jpeg", GB);
+    cv::imwrite(output + "/imgl_bev_rgb.jpeg", opt.imgl_bev_rgb);
     extractor ext3(opt.imgl_bev_rgb, GB, add_semantic_segmentation_left, exposure_flag_bl, size);
     if (add_semantic_segmentation_left)
     {
@@ -656,8 +656,8 @@ int main(int argc, char** argv)
 
     // back right field texture extraction
     int exposure_flag_br = 1;  // if add exposure solution
-    cv::imwrite(output + "/GB.png", GB);
-    cv::imwrite(output + "/imgr_bev_rgb.png", opt.imgr_bev_rgb);
+    cv::imwrite(output + "/GB.jpeg", GB);
+    cv::imwrite(output + "/imgr_bev_rgb.jpeg", opt.imgr_bev_rgb);
     extractor ext4(opt.imgr_bev_rgb, GB, add_semantic_segmentation_right, exposure_flag_br, size);
     if (add_semantic_segmentation_right)
     {
@@ -795,7 +795,7 @@ int main(int argc, char** argv)
     cv::putText(compareMat, "before", cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 1,
                 cv::Scalar(255, 0, 0, 255), 2);
     cv::putText(compareMat, "after", cv::Point(20 + 800, 40), 0, 1, cv::Scalar(255, 0, 0, 255), 2);
-    cv::imwrite(output + "/compare.png", compareMat);
+    cv::imwrite(output + "/compare.jpeg", compareMat);
 
     return 0;
 }
